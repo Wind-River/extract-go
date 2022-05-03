@@ -4,11 +4,13 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 
 	"github.com/pkg/errors"
 )
@@ -20,8 +22,6 @@ import (
 #include "stdlib.h"
 */
 import "C"
-
-var debug int
 
 var Extensions []string
 var MabyeExtensions []string
@@ -41,8 +41,6 @@ const (
 )
 
 func init() {
-	debug = 1
-
 	Extensions = []string{".ar", ".arj", ".cpio", ".dump", ".jar", ".7z", ".zip", ".pack", ".pack2000", ".tar", ".bz2", ".gz", ".lzma", ".snz", ".xz", ".z", ".tgz", ".rpm", ".gem", ".deb", ".whl", ".apk"}
 }
 
@@ -194,15 +192,13 @@ func (e *Extract) Enclose() error {
 }
 
 func (e Extract) Extract() (string, error) {
-	if debug > 0 {
-		fmt.Printf("DEBUG> (%#+v).Extract()\n", e)
-	}
+	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Interface("extract", e).Msg("extracting")
+
 	originalDirectory := ""
 	if e.target != "" {
 		cur, err := os.Getwd()
 		if err != nil {
-			err = errors.Wrapf(err, "Couldn't get wd before changing to %s, defaulting to \".\"", e.target)
-			log.Printf("WARN: %+v", err)
+			log.Warn().Err(err).Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Str("target", e.target).Msg("defaulting to \".\"")
 			cur = "."
 		}
 		originalDirectory = cur
@@ -225,9 +221,9 @@ func (e Extract) Extract() (string, error) {
 	}
 	defer C.status_free(exit)
 	if exit == nil {
-		fmt.Printf("DEBUG: exit is null\n")
+		log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Msg("exit is null")
 	}
-	fmt.Printf("exit.code = %d\n", exit.code)
+	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Str("code", fmt.Sprintf("%d", exit.code)).Send()
 
 	if exit.code < 0 {
 		if originalDirectory != "" {
@@ -238,10 +234,7 @@ func (e Extract) Extract() (string, error) {
 
 	// ret := C.GoString(exit.tag)
 	ret := e.Target()
-	if debug > 0 {
-		// fmt.Printf("Returning from extract: %s\n", ret)
-		log.Printf("DEBUG> (%#+v).Extract() -> %s", e, ret)
-	}
+	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Interface("extract", e).Str("target", ret).Msg("extracted")
 	if originalDirectory != "" {
 		os.Chdir(originalDirectory)
 	}
