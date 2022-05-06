@@ -19,7 +19,7 @@ void mustChdir(const char* path) {
     }
 }
 
-status extractOne(char* source, char* sourceName, char* dest, bool enclosed) {
+status extractOne(const char* source, const char* sourceName, const char* dest, bool enclosed) {
     char* name = NULL;
     if(sourceName == NULL) {
         filename_ptr sourceFileName = parseFilename(source);
@@ -33,21 +33,27 @@ status extractOne(char* source, char* sourceName, char* dest, bool enclosed) {
         filename_free(sourceFileName);
     }
 
-    if(dest != NULL) mustChdir(dest);
+    // if(dest != NULL) mustChdir(dest);
+    char* destination;
     if(enclosed) {
         char* hash = sha1(source);
-        mkdir(hash, 0755);
-        mustChdir(hash);
+        destination = join(dest, hash);
+        mkdir(dest, 0755);
+        // mustChdir(hash);
         free(hash);
+    } else {
+        destination = malloc(sizeof(char*)*strlen(dest));
+        strcpy(destination, dest);
     }
 
     status ret = NULL;
     if(name == NULL) {
-        ret = extract(source, sourceName);
+        ret = extract(source, sourceName, destination);
     } else {
-        ret = extract(source, name);
+        ret = extract(source, name, destination);
         free(name);
     }
+    free(destination);
 
     ret->tag = malloc(PATH_MAX);
     ret->tag = getcwd(ret->tag, PATH_MAX);

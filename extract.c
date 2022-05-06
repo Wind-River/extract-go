@@ -1,6 +1,7 @@
 #include "extract.h"
 #include "filename.h"
 #include "logger.h"
+#include "filepath.h"
 
 #include <stdlib.h>
 #include <archive.h>
@@ -51,7 +52,7 @@ void force_relative_entry(struct archive_entry *entry) {
 	archive_entry_set_pathname(entry, pathname+1);
 }
 
-status _extract(const char *filename)
+status _extract(const char *filename, const char* destination)
 {
 	vlog("_extract(%s)\n", filename);
 	struct archive *a;
@@ -101,6 +102,11 @@ status _extract(const char *filename)
 			archive_entry_set_perm(entry, 0644);
 		}
 		force_relative_entry(entry);
+		// update entry path with destination
+		char* entry_destination = join(destination, archive_entry_pathname(entry));
+		archive_entry_copy_pathname(entry, entry_destination);
+		free(entry_destination);
+		// write entry
     	r = archive_write_header(ext, entry);
     	if (r < ARCHIVE_OK) {
 			warn(wa, __LINE__, archive_entry_pathname(entry), archive_error_string(ext));
@@ -191,7 +197,7 @@ status _decompress(const char *filepath, const char *destname)
 //extract requires pwd to be the destination directory
 //if filename is null, it is expected _extract will extract the archive without problem
 //if filename is not null, it is expected that the archive is not a tar, so _decompress should be tried if _extract fails
-status extract(char *filepath, char *filename)
+status extract(const char *filepath, const char *filename, const char *dest)
 {
 	filename_ptr fp;
 	if(filename == NULL) {
@@ -200,23 +206,27 @@ status extract(char *filepath, char *filename)
 		fp = parseFilename(filename);
 	}
 
+	char* destination = join(dest, getBasename(fp));
+
 	status ret = NULL;
 	if(compressedBinary(fp)) {
-		ret = _decompress(filepath, getBasename(fp));
+		ret = _decompress(filepath, destination);
 	} else {
-		ret =  _extract(filepath);
+		ret =  _extract(filepath, destination);
 		if(ret->code != 0) {
 			//on failure, check filename to see if might be compressed binary file
 			//e.g. a data.gz rather than a data.tar.gz
 			if(filename != NULL) {
-				status de = _decompress(filepath, filename);
+				status de = _decompress(filepath, destination);
 
 				status_free(ret);
+				free(destination);
 				filename_free(fp);
 				//free(filepath);
 				//free(filename);
 				return de;
 			} else {
+				free(destination);
 				filename_free(fp);
 				//free(filepath);
 				//free(filename);
@@ -225,6 +235,7 @@ status extract(char *filepath, char *filename)
 		}
 	}
 
+	free(destination);
 	filename_free(fp);
 	return ret;
 }

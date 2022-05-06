@@ -191,33 +191,23 @@ func (e *Extract) Enclose() error {
 	return nil
 }
 
+// TODO do the simple c strings need freeing?
 func (e Extract) Extract() (string, error) {
 	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Interface("extract", e).Msg("extracting")
 
-	originalDirectory := ""
+	var cTarget *C.char
 	if e.target != "" {
-		cur, err := os.Getwd()
-		if err != nil {
-			log.Warn().Err(err).Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Str("target", e.target).Msg("defaulting to \".\"")
-			cur = "."
-		}
-		originalDirectory = cur
-
-		err = os.Chdir(e.target)
-		if err != nil {
-			return "", errors.Wrapf(err, "Extract.Extract().Chdir(%s)", e.target)
-		}
-		// defer os.Chdir(cur)
+		cTarget = C.CString(e.target)
 	}
 
 	cs := C.CString(e.source)
 	n, f, ex := SplitExt(e.filename)
 	var exit C.status
 	if f != ex || (len(ex) > 0 && ex[1] == 'c') { // f contains tar
-		exit = C.extractOne(cs, nil, nil, false)
+		exit = C.extractOne(cs, nil, cTarget, false)
 	} else {
 		cn := C.CString(n)
-		exit = C.extractOne(cs, cn, nil, false)
+		exit = C.extractOne(cs, cn, cTarget, false)
 	}
 	defer C.status_free(exit)
 	if exit == nil {
@@ -226,17 +216,11 @@ func (e Extract) Extract() (string, error) {
 	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Str("code", fmt.Sprintf("%d", exit.code)).Send()
 
 	if exit.code < 0 {
-		if originalDirectory != "" {
-			os.Chdir(originalDirectory)
-		}
 		return e.target, errors.New(fmt.Sprintf("extract returned with status: %d\n%s\n%s\n", exit.code, C.GoString(exit.message), C.GoString(exit.tag)))
 	}
 
 	// ret := C.GoString(exit.tag)
 	ret := e.Target()
 	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Interface("extract", e).Str("target", ret).Msg("extracted")
-	if originalDirectory != "" {
-		os.Chdir(originalDirectory)
-	}
 	return ret, nil
 }
