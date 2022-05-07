@@ -208,7 +208,7 @@ status extract(const char *filepath, const char *filename, const char *dest)
 	}
 
 	char* destination = join(dest, getBasename(fp));
-	print("join(\"%s\", \"%s\") = %s\n", dest, getBasename(fp), destination);
+	printf("join(\"%s\", \"%s\") = %s\n", dest, getBasename(fp), destination);
 
 	status ret = NULL;
 	if(compressedBinary(fp)) {
