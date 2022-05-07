@@ -11,6 +11,7 @@
 #include "extract.h"
 #include "filename.h"
 #include "sha1.h"
+#include "filepath.h"
 
 void mustChdir(const char* path) {
     int err = chdir(path);
@@ -39,6 +40,7 @@ status extractOne(const char* source, const char* sourceName, const char* dest, 
     if(enclosed) {
         char* hash = sha1(source);
         destination = join(dest, hash);
+        printf("extractOne encloded making \"%s\"\n", destination);
         mkdir(dest, 0755);
         // mustChdir(hash);
         free(hash);
