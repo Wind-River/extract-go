@@ -193,7 +193,12 @@ func (e *Extract) Enclose() error {
 
 // TODO do the simple c strings need freeing?
 func (e Extract) Extract() (string, error) {
-	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Interface("extract", e).Msg("extracting")
+	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").
+		Str("source", e.source).
+		Str("filename", e.filename).
+		Str("target", e.target).
+		Bool("isEnclosed", e.isEnclosed).
+		Msg("extracting")
 
 	var cTarget *C.char
 	if e.target != "" {
