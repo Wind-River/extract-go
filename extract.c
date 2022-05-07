@@ -199,7 +199,7 @@ status _decompress(const char *filepath, const char *destname)
 //if filename is not null, it is expected that the archive is not a tar, so _decompress should be tried if _extract fails
 status extract(const char *filepath, const char *filename, const char *dest)
 {
-	print("extract(\"%s\", \"%s\", \"%s\")\n", filepath, filename, dest);
+	printf("extract(\"%s\", \"%s\", \"%s\")\n", filepath, filename, dest);
 	filename_ptr fp;
 	if(filename == NULL) {
 		fp = parseFilename(filepath);
