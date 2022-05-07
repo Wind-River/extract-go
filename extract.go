@@ -141,6 +141,7 @@ func New(source, filename string) (*Extract, error) {
 }
 
 func NewAt(source, filename, target string) (*Extract, error) {
+	log.Debug().Str(zerolog.CallerFieldName, "extract.NewAt()").Str("source", source).Str("filename", filename).Str("target", target).Msg("Making Target Extractor")
 	if filename == "" {
 		filename = source
 	}
@@ -149,15 +150,16 @@ func NewAt(source, filename, target string) (*Extract, error) {
 		return e, err
 	}
 
-	if err = os.Mkdir(target, 0755); err != nil && !os.IsExist(err) {
-		return e, errors.Wrapf(err, "extract.NewAt(%s, %s, %s).Mkdir(%s)", source, filename, target, target)
-	}
-
 	target, err = filepath.Abs(target)
 	if err != nil {
 		return e, errors.Wrapf(err, "extract.NewAt(%s, %s, %s).Abs(%s)", source, filename, target, target)
 	}
 	e.target = target
+
+	if err = os.MkdirAll(e.target, 0755); err != nil && !os.IsExist(err) {
+		return e, errors.Wrapf(err, "extract.NewAt(%s, %s, %s).Mkdir(%s)", source, filename, target, target)
+	}
+
 	return e, nil
 }
 
