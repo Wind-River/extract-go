@@ -156,6 +156,7 @@ func NewAt(source, filename, target string) (*Extract, error) {
 	}
 	e.target = target
 
+	log.Debug().Str(zerolog.CallerFieldName, "extract.NewAt()").Str("source", source).Str("filename", filename).Str("target", target).Str("e.target", e.target).Msg("Making Target Directory")
 	if err = os.MkdirAll(e.target, 0755); err != nil && !os.IsExist(err) {
 		return e, errors.Wrapf(err, "extract.NewAt(%s, %s, %s).Mkdir(%s)", source, filename, target, target)
 	}
