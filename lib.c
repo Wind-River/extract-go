@@ -20,6 +20,7 @@ void mustChdir(const char* path) {
 }
 
 status extractOne(const char* source, const char* sourceName, const char* dest, bool enclosed) {
+    printf("extractOne(\"%s\", \"%s\", \"%s\", %d)\n", source, sourceName, dest, enclosed);
     char* name = NULL;
     if(sourceName == NULL) {
         filename_ptr sourceFileName = parseFilename(source);
