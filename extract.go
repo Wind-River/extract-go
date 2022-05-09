@@ -20,6 +20,7 @@ import (
 #cgo pkg-config: libcrypto
 #include "lib.h"
 #include "stdlib.h"
+#include "stdio.h"
 */
 import "C"
 
@@ -202,6 +203,7 @@ func (e Extract) Extract() (string, error) {
 		Str("target", e.target).
 		Bool("isEnclosed", e.isEnclosed).
 		Msg("extracting")
+	defer C.fflush(C.stdout)
 
 	var cTarget *C.char
 	if e.target != "" {
