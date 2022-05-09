@@ -12,8 +12,8 @@ char* join(const char *a, const char *b) {
     int bStart = 0;
     int bLen = 0;
     if (b != NULL) {
-        int bStart = 0;
-        int bLen = strlen(b);
+        bStart = 0;
+        bLen = strlen(b);
         requiredLength += bLen;
 
         if (bLen > 0 && b[0] == '/') {
@@ -22,7 +22,6 @@ char* join(const char *a, const char *b) {
             bLen--;
         }
     }
-
 
     char* joinedPath = malloc(sizeof(char*) * requiredLength + 1);
     joinedPath[0] = '\0';
