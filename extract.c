@@ -104,8 +104,7 @@ status _extract(const char *filename, const char* destination)
 		force_relative_entry(entry);
 		// update entry path with destination
 		char* entry_destination = join(destination, archive_entry_pathname(entry));
-		archive_entry_copy_pathname(entry, entry_destination);
-		free(entry_destination);
+		archive_entry_set_pathname(entry, entry_destination);
 		// write entry
     	r = archive_write_header(ext, entry);
     	if (r < ARCHIVE_OK) {
@@ -117,6 +116,7 @@ status _extract(const char *filename, const char* destination)
 			if (r < ARCHIVE_WARN) {
 				archive_read_free(a);
 				archive_write_free(ext);
+				free(entry_destination);
 				vlog("returning stat: %p\n", stat);
 				return stat;
 			}
@@ -130,8 +130,10 @@ status _extract(const char *filename, const char* destination)
 			status stat = report_status(r, archive_error_string(ext), NULL, wa);
 			archive_read_free(a);
 			archive_write_free(ext);
+			free(entry_destination);
 			return stat;
 		}
+		free(entry_destination);
 	}
   	archive_read_close(a);
   	archive_read_free(a);
