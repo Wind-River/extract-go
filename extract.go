@@ -203,7 +203,6 @@ func (e Extract) Extract() (string, error) {
 		Str("target", e.target).
 		Bool("isEnclosed", e.isEnclosed).
 		Msg("extracting")
-	defer C.fflush(C.stdout)
 
 	var cTarget *C.char
 	if e.target != "" {
@@ -219,6 +218,7 @@ func (e Extract) Extract() (string, error) {
 		cn := C.CString(n)
 		exit = C.extractOne(cs, cn, cTarget, false)
 	}
+	C.fflush(C.stdout)
 	defer C.status_free(exit)
 	if exit == nil {
 		log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Msg("exit is null")
