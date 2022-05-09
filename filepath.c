@@ -12,21 +12,20 @@ char* join(const char *a, const char *b) {
     int bStart = 0;
     int bLen = 0;
     if (b != NULL) {
-        bStart = 0;
         bLen = strlen(b);
         requiredLength += bLen;
 
         if (bLen > 0 && b[0] == '/') {
-            requiredLength--;
             bStart = 1;
             bLen--;
+            requiredLength--;
         }
     }
 
     char* joinedPath = malloc(sizeof(char*) * requiredLength + 1);
     joinedPath[0] = '\0';
     strncat(joinedPath, a, aLen);
-    if (b != NULL) {
+    if (bLen > 0) {
         strncat(joinedPath, "/", 1);
         strncat(joinedPath, &b[bStart], bLen);
     }
