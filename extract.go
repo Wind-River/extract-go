@@ -218,12 +218,11 @@ func (e Extract) Extract() (string, error) {
 		cn := C.CString(n)
 		exit = C.extractOne(cs, cn, cTarget, false)
 	}
-	C.fflush(C.stdout)
 	defer C.status_free(exit)
 	if exit == nil {
 		log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Msg("exit is null")
 	}
-	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Str("code", fmt.Sprintf("%d", exit.code)).Send()
+	log.Debug().Str(zerolog.CallerFieldName, "extract.Extract{}.Extract()").Str("code", fmt.Sprintf("%d", exit.code)).Msg("Exited")
 
 	if exit.code < 0 {
 		return e.target, errors.New(fmt.Sprintf("extract returned with status: %d\n%s\n%s\n", exit.code, C.GoString(exit.message), C.GoString(exit.tag)))
