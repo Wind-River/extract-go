@@ -1,7 +1,7 @@
 package extract
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"os"
@@ -179,9 +179,9 @@ func (e *Extract) Enclose() error {
 	}
 	defer f.Close()
 
-	hasher := sha1.New()
+	hasher := sha256.New()
 	if _, err := io.Copy(hasher, f); err != nil {
-		return errors.Wrapf(err, "EXtract.Enclose().Copy(sha1.New(), %s)", e.source)
+		return errors.Wrapf(err, "EXtract.Enclose().Copy(sha256.New(), %s)", e.source)
 	}
 	hash := fmt.Sprintf("%x", hasher.Sum(nil))
 
