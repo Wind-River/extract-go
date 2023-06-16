@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"gitlab.devstar.cloud/ip-systems/extract.git"
+	"github.com/Wind-River/extract-go"
 )
 
 func main() {

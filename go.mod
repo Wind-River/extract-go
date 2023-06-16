@@ -1,4 +1,4 @@
-module gitlab.devstar.cloud/ip-systems/extract.git
+module github.com/Wind-River/extract-go
 
 go 1.18
 
