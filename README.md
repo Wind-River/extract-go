@@ -1,4 +1,4 @@
-# Extract
+# Golang Extract
 
 A Golang wrapper to use [libarchive](https://www.libarchive.org/), a multi-format archive and compression library, for extraction purposes. 
 
