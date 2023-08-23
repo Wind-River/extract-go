@@ -1,8 +1,8 @@
 # Extract
 
-A Golang wrapper to use libarchive for extraction purposes. 
+A Golang wrapper to use [libarchive](https://www.libarchive.org/), a multi-format archive and compression library, for extraction purposes. 
 
-# Installation Guide
+# Installation
 
 # License
 
